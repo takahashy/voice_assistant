@@ -3,6 +3,9 @@ services:
         build:
             context: .
             dockerfile: apps/backend/Dockerfile
+        secrets:
+            - db_password
+            - deepgram_api_key
         env_file:
             - .env
         environment:
@@ -10,8 +13,8 @@ services:
             DATABASE_HOST: ${DB_HOST}
             DATABASE_NAME: ${MYSQL_DATABASE}
             DB_USER: ${DB_USER}
-            DB_PASSWORD: ${DB_PASSWORD}
-            DEEPGRAM_API_KEY: ${DEEPGRAM_API_KEY}
+            DB_PASSWORD_FILE: /run/secrets/db_password
+            DEEPGRAM_API_KEY_FILE: /run/secrets/deepgram_api_key
         ports:
             - "${PORT}:${PORT}"
         networks:
