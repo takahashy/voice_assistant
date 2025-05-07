@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Voice Chat</title>
 </head>
@@ -9,29 +9,33 @@
     <h1>Talk to Voice Assistant</h1>
     <button id="start-button">Start Talking</button>
     <button id="stop-button">Stop Talking</button>
-    <div id="transcription"></div>
+    <div id="transcription">Transcription Below: </div>
 
     <script>
         let socket;
         let mediaRecorder;
 
         document.getElementById('start-button').onclick = async () => {
+            console.log("Starting recording...");
             // Connect frontend to FastAPI backend via WebSocket
             socket = new WebSocket(`ws://${location.host}/ws/audio`);
 
             // Receive and render transcript from backend
             socket.onmessage = (event) => {
-                const data = JSON.parse(event.data);
+                const data = event.data;
+                console.log(`rendering transcript from backend ${data}`);
                 document.getElementById('transcription').innerText += `\n${data.transcription}`;
             };
 
             // Start recording and send audio chunks
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+            console.log(mediaRecorder.mimeType)
             mediaRecorder.start(250);
 
             mediaRecorder.ondataavailable = (e) => {
                 if (socket.readyState === WebSocket.OPEN) {
+                    console.log(e.data);
                     socket.send(e.data);
                 }
             };
@@ -39,9 +43,11 @@
 
         document.getElementById('stop-button').onclick = () => {
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                console.log("Stopping recording...");
                 mediaRecorder.stop();
             }
             if (socket && socket.readyState === WebSocket.OPEN) {
+                console.log("Closing socket...");
                 socket.close();
             }
         };

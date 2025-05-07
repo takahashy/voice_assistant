@@ -3,6 +3,9 @@ services:
         build:
             context: .
             dockerfile: apps/backend/Dockerfile
+        volumes:
+            - ./apps/backend:/app
+            - ./apps/frontend:/app/frontend
         secrets:
             - db_password
             - deepgram_api_key
